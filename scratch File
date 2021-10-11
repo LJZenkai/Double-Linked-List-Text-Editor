@@ -1,0 +1,178 @@
+'''
+The code is supposed to store and display a string of characters in a doubly linked list
+display with a cursor object highlighting a position in the string.
+A simple interface should print the string and then use the second line of output to underline the position of the cursor.
+
+
+Move cursor left one character (do nothing if at the beginning).
+Move cursor right one character (do nothing if at the end).
+Insert a character just after the cursor.
+delete: Delete the character just after the cursor (do nothing at the end).
+'''
+
+class _DoublyLinkedBase:
+    class _Node:
+        __slots__ = '_element', '_prev', '_next',
+
+        def __init__(self, element, prev, next):
+            self._element = element
+            self._prev = prev
+            self._next = next
+
+
+
+
+    def __init__(self):
+        self._header = self._Node(None, None, None)
+        self._trailer = self._Node(None, None, None)
+        self._header._next = self._trailer
+        self._trailer._prev = self._header
+        self._size = 0
+        self.count = 0
+
+
+    def __len__(self):
+        return self._size
+
+    def is_empty(self):
+        return self._size == 0
+
+    def _insert_between(self, e, predecessor, successor):
+        self._current = self._Node(e, predecessor, successor)
+        predecessor._next = self._current
+        successor._prev = self._current
+        self._size += 1
+        return self._current
+
+    def _delete_node(self, node):
+        predecessor = node._prev
+        successor = node._next
+        predecessor._next = successor
+        successor._prev = predecessor
+        self._size -= 1
+        element = node._element
+        node._prev = node._next = node._element = None
+        return element
+
+    def get_index(self):
+            current = newList.count
+            count = self.count
+            while current is not None:
+                if count + 1 == count+2:
+                    return newList.element
+                count += 1
+                current = current.next
+            index = count + 1
+            assert False
+
+class PositionalList(_DoublyLinkedBase):
+    class Position:
+        def __init__(self, container, node):
+            self.head = None
+            self._container = container
+            self._node = node
+            self._count = 0
+            self.index = 0
+
+        def element(self):
+            return self._node._element
+
+        def __eq__(self, other):
+            return type(other) is type(self) and other._node is self._node
+
+        def __ne__(self, other):
+            return not (self == other)
+
+
+
+    def _validate(self, p):
+        if not isinstance(p, self.Position):
+            raise TypeError('p must be proper Position type')
+        if p._container is not self:
+            raise ValueError('p does not belong to this container')
+        if p._node._next is None and p._node._prev is None:
+            raise ValueError('p is no longer valid')
+        return p._node
+
+    def _make_position(self, node):
+        if node is self._header or node is self._trailer:
+            return None
+        else:
+            return self.Position(self, node)
+
+    def first(self):
+        return self._make_position(self._header._next)
+
+    def last(self):
+        return self._make_position(self._trailer._prev)
+
+    def before(self, p):
+        node = self._validate(p)
+        return self._make_position(node._prev)
+
+    def after(self, p):
+        node = self._validate(p)
+        return self._make_position(node._next)
+
+    def _insert_between(self, e, predecessor, successor):
+        node = super()._insert_between(e, predecessor, successor)
+        return self._make_position(node)
+
+    def add_first(self, e):
+        return self._insert_between(e, self._header, self._header._next)
+
+    def add_last(self, e):
+        return self._insert_between(e, self._trailer._prev, self._trailer)
+
+    def add_before(self, p, e):
+        original = self._validate(p)
+        return self._insert_between(e, original._prev, original)
+
+    def add_after(self, p, e):
+        original = self._validate(p)
+        return self._insert_between(e, original, original._next)
+
+    def delete(self, p):
+        original = self._validate(p)
+        return self._delete_node(original)
+
+    def replace(self, p, e):
+        original = self._validate(p)
+        old_value = original._element
+        original._element = e
+        return old_value
+
+    def __iter__(self):
+        cursor = newList.first()
+        while cursor is not None:
+            print(cursor.element(), end="")
+            cursor = newList.after(cursor)
+        return cursor
+
+    def cursor_left(self):
+        spot = newList.first()
+        if newList.before(spot) is not None:
+            newList.replace(newList.before(spot), spot.element() + cursor)
+            spot = newList.before(spot)
+        #newList.replace(newList.after(spot), newList.after(spot).element())
+        newList.__iter__()
+    #def cursor_right(self, cursor):
+
+    def remove_after(self):
+        newList.delete(newList.after(newList.first()))
+
+        newList.__iter__()
+
+def fill_list():
+    for i in range(len(text)):
+        if i == 0:
+            newList.add_last(text[i]+cursor)
+        else:
+            newList.add_last(text[i])
+
+
+newList = PositionalList()
+
+cursor = "" + "\u0332"
+text = "Type what you like here."
+fill_list()
